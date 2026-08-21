@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>ShopBoss</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0d0f14;--s1:#141720;--s2:#1a1e2b;--s3:#212638;
+  --bdr:#2c3347;--gold:#f0b429;--gold2:#e8a010;
+  --green:#10b981;--red:#f43f5e;--blue:#3b82f6;--purple:#8b5cf6;
+  --text:#eef0f6;--sub:#8892aa;--dim:#50596e;
+  --r:14px;--r2:10px;--r3:8px;
+}
+html,body,#app{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Text','Segoe UI',sans-serif;font-size:14px;line-height:1.5}
+
+/* ── Screens ─────────────────────────── */
+#app{display:flex;flex-direction:column}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+
+/* ── Header ──────────────────────────── */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:var(--s1);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.hdr-left h1{font-size:17px;font-weight:700;color:var(--gold);letter-spacing:-.3px}
+.hdr-left p{font-size:11px;color:var(--sub);margin-top:1px}
+.hdr-icon{width:32px;height:32px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:16px}
+
+/* ── Bottom Nav ───────────────────────── */
+.nav{display:flex;background:var(--s1);border-top:1px solid var(--bdr);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border:none;background:none;color:var(--sub);font-size:9px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;transition:color .15s}
+.nav-btn .icon{font-size:20px;line-height:1}
+.nav-btn.active{color:var(--gold)}
+.nav-btn.active .icon{filter:drop-shadow(0 0 6px rgba(240,180,41,.5))}
+
+/* ── Scroll container ─────────────────── */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ── Cards ────────────────────────────── */
+.card{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+.card-hdr{padding:12px 14px 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--sub)}
+.card-body{padding:12px 14px 14px}
+
+/* ── Stat grid ────────────────────────── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r2);padding:12px}
+.stat-l{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.4px}
+.stat-v{font-size:18px;font-weight:800;margin-top:3px;letter-spacing:-.5px}
+.stat-s{font-size:10px;color:var(--sub);margin-top:2px}
+.c-gold{color:var(--gold)} .c-green{color:var(--green)} .c-red{color:var(--red)} .c-blue{color:var(--blue)}
+
+/* ── Alert ────────────────────────────── */
+.alert{display:flex;gap:10px;background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.25);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px}
+.alert-warn{background:rgba(240,180,41,.08);border-color:rgba(240,180,41,.25)}
+.alert .icon{font-size:18px;flex-shrink:0}
+.alert-title{font-weight:600;font-size:13px}
+.alert-desc{font-size:11px;color:var(--sub);margin-top:2px}
+
+/* ── Row list ─────────────────────────── */
+.row-list .row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.row-list .row:last-child{border-bottom:none;padding-bottom:0}
+.row-list .row:first-child{padding-top:0}
+.row-l{flex:1;min-width:0}
+.row-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-sub{font-size:11px;color:var(--sub);margin-top:1px}
+.row-r{text-align:right;flex-shrink:0;margin-left:12px}
+.row-val{font-weight:700;font-size:13px}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;display:inline-block}
+.bg-green{background:rgba(16,185,129,.15);color:var(--green)}
+.bg-red{background:rgba(244,63,94,.15);color:var(--red)}
+.bg-gold{background:rgba(240,180,41,.15);color:var(--gold)}
+.bg-blue{background:rgba(59,130,246,.15);color:var(--blue)}
+
+/* ── Bar chart (pure CSS) ─────────────── */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px;padding-top:8px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-fill{width:100%;background:var(--gold);border-radius:4px 4px 0 0;min-height:4px;transition:height .4s ease}
+.bar-label{font-size:9px;color:var(--sub);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── Forms ────────────────────────────── */
+.form-group{margin-bottom:12px}
+.form-label{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;display:block}
+.form-input,.form-select{width:100%;background:var(--s2);border:1.5px solid var(--bdr);border-radius:var(--r3);padding:10px 12px;color:var(--text);font-size:14px;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .15s}
+.form-input:focus,.form-select:focus{border-color:var(--gold)}
+.form-input::placeholder{color:var(--dim)}
+
+/* ── Buttons ──────────────────────────── */
+.btn{width:100%;background:var(--gold);color:#111;border:none;border-radius:var(--r3);padding:13px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s;margin-top:4px}
+.btn:active{opacity:.85}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-ghost{background:var(--s2);color:var(--text);border:1.5px solid var(--bdr)}
+.btn-row{display:flex;gap:8px}
+.btn-row .btn{flex:1;margin-top:0}
+
+/* ── AI chat ──────────────────────────── */
+.chat-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.chat-scroll::-webkit-scrollbar{display:none}
+.bubble{max-width:85%}
+.bubble.me{align-self:flex-end}
+.bubble.bot{align-self:flex-start}
+.bubble-name{font-size:10px;color:var(--sub);margin-bottom:3px;font-weight:600}
+.bubble-body{padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.55}
+.bubble.bot .bubble-body{background:var(--s2);border:1px solid var(--bdr)}
+.bubble.me .bubble-body{background:var(--gold);color:#111;font-weight:500}
+.typing-dot{display:inline-block;width:6px;height:6px;background:var(--sub);border-radius:50%;animation:blink 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.chat-input-row{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--bdr);flex-shrink:0;background:var(--s1)}
+.chat-input{flex:1;background:var(--s2);border:1.5px solid var(--bdr);border-radius:99px;padding:9px 14px;color:var(--text);font-size:13px;outline:none}
+.chat-input:focus{border-color:var(--gold)}
+.chat-send{width:36px;height:36px;border-radius:50%;background:var(--gold);color:#111;border:none;font-size:17px;font-weight:700;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.chat-send:disabled{opacity:.35;cursor:not-allowed}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px 0}
+.chip{background:var(--s2);border:1px solid var(--bdr);border-radius:99px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--sub);cursor:pointer;white-space:nowrap}
+.chip:active{background:var(--s3)}
+
+/* ── Toast ────────────────────────────── */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--green);color:#fff;padding:9px 18px;border-radius:99px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--red)}
+
+/* ── Loading / Empty ──────────────────── */
+.center-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:48px 24px;text-align:center}
+.center-box .big-icon{font-size:40px}
+.center-box p{color:var(--sub);font-size:13px;line-height:1.6}
+.spin{width:28px;height:28px;border:3px solid var(--bdr);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Not-in-Telegram error ────────────── */
+.tg-error{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center;gap:14px}
+.tg-error .big{font-size:52px}
+.tg-error h2{color:var(--gold);font-size:19px}
+.tg-error p{color:var(--sub);font-size:13px;line-height:1.7;max-width:280px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ── Telegram SDK ──────────────────────────────────────────
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+const TG_USER = tg?.initDataUnsafe?.user;
+const TG_ID   = TG_USER?.id ? String(TG_USER.id) : null;
+const API_BASE = window.location.origin;
+
+// ── Helpers ───────────────────────────────────────────────
+const fmt  = n => '₦' + Number(n||0).toLocaleString('en-NG');
+const el   = id => document.getElementById(id);
+const qs   = sel => document.querySelector(sel);
+const qsa  = sel => [...document.querySelectorAll(sel)];
+
+let toastTimer;
+function showToast(msg, isErr=false) {
+  const t = el('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr?' err':'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 2500);
+}
+
+async function api(path, opts={}) {
+  const res = await fetch(API_BASE + '/mini' + path, {
+    headers: { 'Content-Type': 'application/json', 'x-tg-id': TG_ID || '0' },
+    ...opts,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+// ── State ─────────────────────────────────────────────────
+let state = {
+  tab: 'dash',
+  data: null,
+  loading: true,
+  chatMessages: [
+    { role:'bot', text:'Hi! Ask me anything about your business — sales, stock, profit, advice.' }
+  ],
+  chatLoading: false,
+  invView: 'list',    // list | add
+};
+
+// ── Render helpers ────────────────────────────────────────
+function h(tag, cls, ...children) {
+  const div = document.createElement(tag||'div');
+  if (cls) div.className = cls;
+  children.forEach(c => { if (c == null) return; div.append(typeof c === 'string' ? c : c); });
+  return div;
+}
+
+function statBox(label, value, valueCls, sub) {
+  const box = h('div', 'stat');
+  box.innerHTML = `<div class="stat-l">${label}</div><div class="stat-v ${valueCls||''}">${value}</div>${sub?`<div class="stat-s">${sub}</div>`:''}`;
+  return box;
+}
+
+function barChart(items, maxVal) {
+  const wrap = h('div', 'bar-chart');
+  items.forEach(item => {
+    const pct = maxVal > 0 ? Math.max(6, Math.round((item.val / maxVal) * 100)) : 6;
+    const col = h('div', 'bar-col');
+    const bar = h('div', 'bar-fill'); bar.style.height = pct + '%';
+    const lbl = h('div', 'bar-label'); lbl.textContent = item.label;
+    col.append(bar, lbl);
+    wrap.append(col);
+  });
+  return wrap;
+}
+
+function rowItem(name, sub, rightVal, rightCls, badge) {
+  const row = h('div', 'row');
+  const l = h('div', 'row-l');
+  l.innerHTML = `<div class="row-name">${name}</div>${sub?`<div class="row-sub">${sub}</div>`:''}`;
+  const r = h('div', 'row-r');
+  if (badge) r.innerHTML = `<span class="badge ${badge.cls}">${badge.txt}</span>`;
+  else r.innerHTML = `<div class="row-val ${rightCls||''}">${rightVal}</div>`;
+  row.append(l, r);
+  return row;
+}
+
+// ── Screens ───────────────────────────────────────────────
+
+function renderDash() {
+  const scr = el('scr-dash');
+  const sc  = h('div','scroll'); scr.innerHTML = ''; scr.append(sc);
+
+  if (state.loading) {
+    sc.append(Object.assign(h('div','center-box'), { innerHTML: '<div class="spin"></div><p>Loading dashboard…</p>' }));
+    return;
+  }
+  if (!state.data) {
+    sc.append(Object.assign(h('div','center-box'), { innerHTML: '<div class="big-icon">⚠️</div><p>Could not load data. Pull down to refresh.</p>' }));
+    return;
+  }
+
+  const d = state.data.dashboard;
+
+  // Today card
+  const todayCard = h('div','card');
+  todayCard.innerHTML = '<div class="card-hdr">Today</div>';
+  const todayBody = h('div','card-body');
+  const todayGrid = h('div','stat-grid');
+  todayGrid.append(
+    statBox('Revenue', fmt(d.today.revenue), 'c-gold', `${d.today.count} sale(s)`),
+    statBox('Profit',  fmt(d.today.profit),  d.today.profit>=0?'c-green':'c-red', 'gross today')
+  );
+  todayBody.append(todayGrid);
+  todayCard.append(todayBody);
+
+  // Month card
+  const monCard = h('div','card');
+  monCard.innerHTML = '<div class="card-hdr">This Month</div>';
+  const monBody = h('div','card-body');
+  const monGrid = h('div','stat-grid');
+  monGrid.append(
+    statBox('Revenue',    fmt(d.month.revenue),   'c-gold',  `${d.month.count} sales`),
+    statBox('Net Profit', fmt(d.netProfit),        d.netProfit>=0?'c-green':'c-red', 'after expenses'),
+    statBox('Expenses',   fmt(d.expenses.total),  'c-red',   `${d.expenses.count} entries`),
+    statBox('Stock Value',fmt(d.stockValue),       '',        `${d.products.count} products`)
+  );
+  monBody.append(monGrid);
+  monCard.append(monBody);
+
+  // Top products bar chart
+  const topProds = state.data.topProducts || [];
+  let chartCard = null;
+  if (topProds.length) {
+    chartCard = h('div','card');
+    chartCard.innerHTML = '<div class="card-hdr">Top Products by Revenue</div>';
+    const cb = h('div','card-body');
+    const maxVal = Math.max(...topProds.map(p => p.total_revenue));
+    cb.append(barChart(topProds.map(p => ({
+      label: p.product_name.length > 8 ? p.product_name.slice(0,7)+'…' : p.product_name,
+      val: p.total_revenue
+    })), maxVal));
+    chartCard.append(cb);
+  }
+
+  // Alerts
+  const alerts = [];
+  if (d.lowStock > 0) {
+    const a = h('div','alert alert-warn');
+    a.innerHTML = `<div class="icon">⚠️</div><div><div class="alert-title">${d.lowStock} item(s) low on stock</div><div class="alert-desc">Check Inventory tab to restock</div></div>`;
+    alerts.push(a);
+  }
+  if (d.netProfit < 0 && d.month.revenue > 0) {
+    const a = h('div','alert');
+    a.innerHTML = `<div class="icon">📉</div><div><div class="alert-title">Expenses exceed profit</div><div class="alert-desc">Net loss: ${fmt(Math.abs(d.netProfit))} this month</div></div>`;
+    alerts.push(a);
+  }
+
+  sc.append(todayCard, monCard);
+  if (chartCard) sc.append(chartCard);
+  alerts.forEach(a => sc.append(a));
+}
+
+function renderSales() {
+  const scr = el('scr-sales');
+  scr.innerHTML = '';
+
+  // Form card
+  const formCard = h('div','card');
+  formCard.innerHTML = '<div class="card-hdr">Record a Sale</div>';
+  const fb = h('div','card-body');
+
+  const products = state.data?.inventoryList || [];
+
+  // Product field
+  const fg1 = h('div','form-group');
+  fg1.innerHTML = '<label class="form-label">Product</label>';
+  let prodInput;
+  if (products.length) {
+    prodInput = document.createElement('select');
+    prodInput.className = 'form-select';
+    prodInput.innerHTML = '<option value="">— Select product —</option>' +
+      products.map(p => `<option value="${p.name}">${p.name} (${p.stock} ${p.unit})</option>`).join('');
+  } else {
+    prodInput = document.createElement('input');
+    prodInput.className = 'form-input';
+    prodInput.placeholder = 'Product name';
+  }
+  fg1.append(prodInput);
+
+  const fg2 = h('div','form-group');
+  fg2.innerHTML = '<label class="form-label">Quantity</label><input class="form-input" type="number" placeholder="1" min="0.1" step="any" id="s-qty"/>';
+
+  const fg3 = h('div','form-group');
+  fg3.innerHTML = '<label class="form-label">Selling Price (₦)</label><input class="form-input" type="number" placeholder="2500" min="0" id="s-price"/>';
+
+  const fg4 = h('div','form-group');
+  fg4.innerHTML = '<label class="form-label">Customer (optional)</label><input class="form-input" placeholder="Name or phone" id="s-cust"/>';
+
+  const submitBtn = document.createElement('button');
+  submitBtn.className = 'btn'; submitBtn.textContent = 'Record Sale';
+  submitBtn.onclick = async () => {
+    const pname = prodInput.value?.trim();
+    const qty   = parseFloat(el('s-qty')?.value);
+    const price = parseFloat(el('s-price')?.value);
+    const cust  = el('s-cust')?.value?.trim();
+    if (!pname || !qty || !price) return showToast('Fill in product, quantity and price', true);
+    submitBtn.disabled = true; submitBtn.textContent = 'Saving…';
+    try {
+      await api('/sale', { method:'POST', body: JSON.stringify({ product_name:pname, quantity:qty, sell_price:price, customer:cust||null })});
+      showToast('✅ Sale recorded!');
+      prodInput.value = ''; el('s-qty').value=''; el('s-price').value=''; el('s-cust').value='';
+      await loadData();
+      tg?.HapticFeedback?.notificationOccurred('success');
+    } catch(e) { showToast(e.message, true); }
+    submitBtn.disabled = false; submitBtn.textContent = 'Record Sale';
+  };
+
+  fb.append(fg1, fg2, fg3, fg4, submitBtn);
+  formCard.append(fb);
+
+  // Recent sales
+  const recent = state.data?.recentSales || [];
+  let recentCard = null;
+  if (recent.length) {
+    recentCard = h('div','card');
+    recentCard.innerHTML = '<div class="card-hdr">Recent Sales</div>';
+    const rb = h('div','card-body'); rb.className = 'card-body row-list';
+    recent.slice(0,8).forEach(s => {
+      rb.append(rowItem(s.product_name, `Qty: ${s.quantity}${s.customer?' · '+s.customer:''}`, fmt(s.revenue), 'c-gold'));
+    });
+    recentCard.append(rb);
+  }
+
+  const sc = h('div','scroll');
+  sc.append(formCard);
+  if (recentCard) sc.append(recentCard);
+  scr.append(sc);
+}
+
+function renderInventory() {
+  const scr = el('scr-inv');
+  scr.innerHTML = '';
+  const sc = h('div','scroll');
+
+  // Toggle row
+  const toggleRow = h('div','btn-row'); toggleRow.style.marginBottom='12px';
+  const listBtn = document.createElement('button');
+  const addBtn  = document.createElement('button');
+  listBtn.className = 'btn' + (state.invView==='list'?'':' btn-ghost');
+  addBtn.className  = 'btn' + (state.invView==='add'?' ':' btn-ghost');
+  listBtn.textContent = '📦 Products'; addBtn.textContent = '➕ Add Product';
+  listBtn.onclick = () => { state.invView='list'; renderInventory(); };
+  addBtn.onclick  = () => { state.invView='add';  renderInventory(); };
+  toggleRow.append(listBtn, addBtn);
+  sc.append(toggleRow);
+
+  if (state.invView === 'list') {
+    const low  = state.data?.lowStockItems || [];
+    const all  = state.data?.inventoryList || [];
+
+    if (low.length) {
+      const lc = h('div','card');
+      lc.innerHTML = `<div class="card-hdr">⚠️ Low Stock (${low.length})</div>`;
+      const lb = h('div','card-body row-list');
+      low.forEach(p => lb.append(rowItem(p.name, `Min: ${p.min_stock} ${p.unit}`, '', '', { cls:'bg-red', txt:`${p.stock} left` })));
+      lc.append(lb); sc.append(lc);
+    }
+
+    const ac = h('div','card');
+    ac.innerHTML = `<div class="card-hdr">All Products (${all.length})</div>`;
+    if (!all.length) {
+      ac.append(Object.assign(h('div','center-box'), { innerHTML:'<div class="big-icon">📦</div><p>No products yet. Tap "Add Product" to start.</p>' }));
+    } else {
+      const ab = h('div','card-body row-list');
+      all.forEach(p => ab.append(rowItem(p.name, `Cost: ${fmt(p.cost_price)} · Sell: ${fmt(p.sell_price)}`, '', '', {
+        cls: p.stock <= p.min_stock ? 'bg-red' : 'bg-green',
+        txt: `${p.stock} ${p.unit}`
+      })));
+      ac.append(ab);
+    }
+    sc.append(ac);
+
+  } else {
+    // Add product form
+    const fc = h('div','card');
+    fc.innerHTML = '<div class="card-hdr">Add New Product</div>';
+    const fb = h('div','card-body');
+    fb.innerHTML = `
+      <div class="form-group"><label class="form-label">Product Name</label><input class="form-input" id="p-name" placeholder="e.g. Coca-Cola"/></div>
+      <div class="form-group"><label class="form-label">Selling Price (₦)</label><input class="form-input" type="number" id="p-sell" placeholder="500"/></div>
+      <div class="form-group"><label class="form-label">Cost Price (₦)</label><input class="form-input" type="number" id="p-cost" placeholder="300"/></div>
+      <div class="form-group"><label class="form-label">Stock Quantity</label><input class="form-input" type="number" id="p-stock" placeholder="50"/></div>
+      <div class="form-group"><label class="form-label">Unit</label><input class="form-input" id="p-unit" placeholder="pieces / kg / litres" value="unit"/></div>
+    `;
+    const btn = document.createElement('button');
+    btn.className='btn'; btn.textContent='Add Product';
+    btn.onclick = async () => {
+      const name  = el('p-name')?.value?.trim();
+      const sell  = parseFloat(el('p-sell')?.value);
+      const cost  = parseFloat(el('p-cost')?.value||0);
+      const stock = parseFloat(el('p-stock')?.value||0);
+      const unit  = el('p-unit')?.value?.trim()||'unit';
+      if (!name || !sell) return showToast('Name and sell price required', true);
+      btn.disabled=true; btn.textContent='Saving…';
+      try {
+        await api('/product', { method:'POST', body: JSON.stringify({ name, sell_price:sell, cost_price:cost, stock, unit }) });
+        showToast('✅ Product added!');
+        state.invView = 'list';
+        await loadData();
+      } catch(e) { showToast(e.message, true); }
+      btn.disabled=false; btn.textContent='Add Product';
+    };
+    fb.append(btn); fc.append(fb); sc.append(fc);
+  }
+  scr.append(sc);
+}
+
+function renderExpenses() {
+  const scr = el('scr-exp'); scr.innerHTML = '';
+  const sc  = h('div','scroll');
+
+  const cats = ['General','Utilities','Transport','Stock/Supply','Operations','Marketing','Payroll','Other'];
+
+  const fc = h('div','card');
+  fc.innerHTML = '<div class="card-hdr">Record Expense</div>';
+  const fb = h('div','card-body');
+  fb.innerHTML = `
+    <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="e-desc" placeholder="e.g. Generator fuel"/></div>
+    <div class="form-group"><label class="form-label">Amount (₦)</label><input class="form-input" type="number" id="e-amt" placeholder="5000"/></div>
+    <div class="form-group"><label class="form-label">Category</label>
+      <select class="form-select" id="e-cat">${cats.map(c=>`<option>${c}</option>`).join('')}</select>
+    </div>
+  `;
+  const btn = document.createElement('button');
+  btn.className='btn'; btn.textContent='Record Expense';
+  btn.onclick = async () => {
+    const desc = el('e-desc')?.value?.trim();
+    const amt  = parseFloat(el('e-amt')?.value);
+    const cat  = el('e-cat')?.value;
+    if (!desc || !amt) return showToast('Description and amount required', true);
+    btn.disabled=true; btn.textContent='Saving…';
+    try {
+      await api('/expense', { method:'POST', body: JSON.stringify({ description:desc, amount:amt, category:cat }) });
+      showToast('✅ Expense recorded!');
+      el('e-desc').value=''; el('e-amt').value='';
+      await loadData();
+    } catch(e) { showToast(e.message, true); }
+    btn.disabled=false; btn.textContent='Record Expense';
+  };
+  fb.append(btn); fc.append(fb); sc.append(fc);
+
+  // By category
+  const cats_data = state.data?.expenseBreakdown || [];
+  if (cats_data.length) {
+    const cc = h('div','card');
+    cc.innerHTML = '<div class="card-hdr">This Month by Category</div>';
+    const cb = h('div','card-body row-list');
+    cats_data.forEach(c => cb.append(rowItem(c.category, '', fmt(c.total), 'c-red')));
+    cc.append(cb); sc.append(cc);
+  }
+
+  // Recent
+  const recent = state.data?.recentExpenses || [];
+  if (recent.length) {
+    const rc = h('div','card');
+    rc.innerHTML = '<div class="card-hdr">Recent Expenses</div>';
+    const rb = h('div','card-body row-list');
+    recent.slice(0,8).forEach(e => rb.append(rowItem(e.description, e.category, fmt(e.amount), 'c-red')));
+    rc.append(rb); sc.append(rc);
+  }
+
+  scr.append(sc);
+}
+
+function renderChat() {
+  const scr = el('scr-ai');
+  // Only rebuild messages container, not the whole screen
+  const existing = scr.querySelector('.chat-scroll');
+  if (existing) { renderChatMessages(existing); return; }
+
+  scr.innerHTML = '';
+
+  // Quick chips
+  const chips = h('div','chips');
+  ['How much did I make today?','What stock is low?','What\'s my profit?','Give me advice'].forEach(q => {
+    const c = h('div','chip'); c.textContent = q;
+    c.onclick = () => sendChat(q);
+    chips.append(c);
+  });
+
+  const chatScroll = h('div','chat-scroll');
+  renderChatMessages(chatScroll);
+
+  // Input row
+  const inputRow = h('div','chat-input-row');
+  const input = document.createElement('input');
+  input.className = 'chat-input'; input.placeholder = 'Ask about your business…'; input.id = 'chat-inp';
+  input.onkeydown = e => { if (e.key==='Enter') sendChat(); };
+  const sendBtn = document.createElement('button');
+  sendBtn.className = 'chat-send'; sendBtn.id = 'chat-send'; sendBtn.textContent = '↑';
+  sendBtn.onclick = sendChat;
+  inputRow.append(input, sendBtn);
+
+  scr.append(chips, chatScroll, inputRow);
+}
+
+function renderChatMessages(container) {
+  container.innerHTML = '';
+  state.chatMessages.forEach(m => {
+    const bub = h('div', `bubble ${m.role==='bot'?'bot':'me'}`);
+    bub.innerHTML = `<div class="bubble-name">${m.role==='bot'?'🤖 ShopBoss':'👤 You'}</div><div class="bubble-body">${m.text.replace(/\n/g,'<br/>')}</div>`;
+    container.append(bub);
+  });
+  if (state.chatLoading) {
+    const bub = h('div','bubble bot');
+    bub.innerHTML = '<div class="bubble-name">🤖 ShopBoss</div><div class="bubble-body"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
+    container.append(bub);
+  }
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendChat(preset) {
+  const inp  = el('chat-inp');
+  const text = preset || inp?.value?.trim();
+  if (!text || state.chatLoading) return;
+  if (inp) inp.value = '';
+  state.chatMessages.push({ role:'user', text });
+  state.chatLoading = true;
+  const cs = qs('.chat-scroll');
+  if (cs) renderChatMessages(cs);
+  try {
+    const res = await api('/ask', { method:'POST', body: JSON.stringify({ question: text }) });
+    state.chatMessages.push({ role:'bot', text: res.answer });
+  } catch(e) {
+    state.chatMessages.push({ role:'bot', text: '⚠️ ' + e.message });
+  }
+  state.chatLoading = false;
+  const cs2 = qs('.chat-scroll');
+  if (cs2) renderChatMessages(cs2);
+}
+
+// ── Tab switching ─────────────────────────────────────────
+function switchTab(tab) {
+  state.tab = tab;
+  qsa('.screen').forEach(s => s.classList.remove('active'));
+  qsa('.nav-btn').forEach(b => b.classList.remove('active'));
+  const scr = el('scr-' + tab);
+  if (scr) scr.classList.add('active');
+  const btn = el('nav-' + tab);
+  if (btn) btn.classList.add('active');
+  renderTab(tab);
+}
+
+function renderTab(tab) {
+  if (tab==='dash')  renderDash();
+  if (tab==='sales') renderSales();
+  if (tab==='inv')   renderInventory();
+  if (tab==='exp')   renderExpenses();
+  if (tab==='ai')    renderChat();
+}
+
+// ── Data loading ──────────────────────────────────────────
+async function loadData() {
+  try {
+    const d = await api('/data');
+    state.data = d;
+    state.loading = false;
+  } catch(e) {
+    state.loading = false;
+    console.error('Load error:', e.message);
+  }
+  renderTab(state.tab);
+}
+
+// ── Boot ──────────────────────────────────────────────────
+function boot() {
+  const app = el('app');
+
+  // Not in Telegram
+  if (!TG_ID) {
+    app.innerHTML = `
+      <div class="tg-error">
+        <div class="big">📱</div>
+        <h2>Open inside Telegram</h2>
+        <p>ShopBoss must be opened from the Telegram app. Find your ShopBoss bot and send /app to launch this dashboard.</p>
+      </div>`;
+    return;
+  }
+
+  // Build UI shell
+  app.innerHTML = `
+    <!-- Header -->
+    <div class="hdr">
+      <div class="hdr-left">
+        <h1>ShopBoss</h1>
+        <p id="biz-name">${TG_USER?.first_name ? TG_USER.first_name+"'s Business" : 'My Business'}</p>
+      </div>
+      <div class="hdr-icon">🏪</div>
+    </div>
+
+    <!-- Screens -->
+    <div class="screen active" id="scr-dash"></div>
+    <div class="screen" id="scr-sales"></div>
+    <div class="screen" id="scr-inv"></div>
+    <div class="screen" id="scr-exp"></div>
+    <div class="screen" id="scr-ai"></div>
+
+    <!-- Bottom Nav -->
+    <nav class="nav">
+      <button class="nav-btn active" id="nav-dash"  onclick="switchTab('dash')"><span class="icon">📊</span>Dashboard</button>
+      <button class="nav-btn"        id="nav-sales" onclick="switchTab('sales')"><span class="icon">💰</span>Sales</button>
+      <button class="nav-btn"        id="nav-inv"   onclick="switchTab('inv')"><span class="icon">📦</span>Inventory</button>
+      <button class="nav-btn"        id="nav-exp"   onclick="switchTab('exp')"><span class="icon">💸</span>Expenses</button>
+      <button class="nav-btn"        id="nav-ai"    onclick="switchTab('ai')"><span class="icon">🤖</span>AI</button>
+    </nav>
+  `;
+
+  // Show loading state immediately
+  renderDash();
+
+  // Load real data
+  loadData().then(() => {
+    const bizName = state.data?.businessName;
+    if (bizName) { const bn = el('biz-name'); if (bn) bn.textContent = bizName; }
+  });
+}
+
+boot();
+</script>
+</body>
+</html>
