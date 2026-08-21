@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: shopboss
+    env: node
+    buildCommand: npm install
+    startCommand: node src/index.js
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: WEBHOOK_URL
+        sync: false
