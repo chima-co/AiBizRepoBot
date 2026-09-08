@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#0D1117"/>
+<title>ShopBot — Nigeria's Business Marketplace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset & Tokens ─────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0D1117; --s1:#161B22; --s2:#1C2333; --s3:#21262D;
+  --rim:#30363D; --wire:#484F58;
+  --green:#22C55E; --green2:#16A34A;
+  --amber:#F59E0B; --amber2:#D97706;
+  --red:#EF4444; --blue:#3B82F6;
+  --text:#F0F6FC; --sub:#8B949E; --dim:#484F58;
+  --font:'DM Sans',-apple-system,sans-serif;
+  --r:12px; --r2:8px; --r3:5px;
+  --nav-h:58px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+button{font-family:var(--font);cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:var(--font)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--rim);border-radius:99px}
+
+/* ── Typography ──────────────────────────────────────────────── */
+.h1{font-size:clamp(24px,5vw,40px);font-weight:700;letter-spacing:-.5px;line-height:1.15}
+.h2{font-size:clamp(18px,3vw,24px);font-weight:600;letter-spacing:-.3px}
+.h3{font-size:16px;font-weight:600}
+.small{font-size:12px;color:var(--sub)}
+.price{font-size:16px;font-weight:700;color:var(--amber)}
+.price-lg{font-size:20px;font-weight:700;color:var(--amber)}
+
+/* ── Navigation ──────────────────────────────────────────────── */
+#nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--rim);height:var(--nav-h);display:flex;align-items:center;padding:0 16px;gap:12px}
+.nav-logo{font-size:18px;font-weight:700;color:var(--green);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.nav-logo span{color:var(--text)}
+.nav-search{flex:1;max-width:480px;position:relative;display:none}
+.nav-search input{width:100%;background:var(--s2);border:1px solid var(--rim);border-radius:var(--r2);padding:8px 12px 8px 36px;color:var(--text);font-size:14px;outline:none;transition:border-color .15s}
+.nav-search input:focus{border-color:var(--green)}
+.nav-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--sub);width:16px;height:16px}
+.nav-links{display:none;gap:4px;margin-left:auto}
+.nav-links a,.nav-btn{padding:7px 14px;border-radius:var(--r2);font-size:14px;font-weight:500;transition:background .15s}
+.nav-links a:hover{background:var(--s2)}
+.nav-btn{background:var(--green);color:#0a0a0a;font-weight:600;font-size:14px}
+.nav-btn:hover{background:var(--green2)}
+.nav-cart{position:relative;width:38px;height:38px;border-radius:var(--r2);background:var(--s2);border:1px solid var(--rim);display:flex;align-items:center;justify-content:center;margin-left:auto}
+.nav-cart svg{width:18px;height:18px}
+.cart-badge{position:absolute;top:-4px;right:-4px;background:var(--green);color:#000;font-size:10px;font-weight:700;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;display:none}
+@media(min-width:640px){.nav-search{display:block}.nav-links{display:flex}.nav-cart{margin-left:0}}
+
+/* ── Mobile bottom nav ───────────────────────────────────────── */
+#bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid var(--rim);display:flex;z-index:90;padding-bottom:env(safe-area-inset-bottom,0)}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px;font-size:10px;font-weight:500;color:var(--sub);transition:color .15s;cursor:pointer}
+.bn-item svg{width:20px;height:20px}
+.bn-item.active,.bn-item:hover{color:var(--green)}
+@media(min-width:768px){#bottom-nav{display:none}}
+
+/* ── Pages ───────────────────────────────────────────────────── */
+.page{display:none;min-height:calc(100vh - var(--nav-h) - 58px);padding-bottom:70px}
+.page.active{display:block}
+@media(min-width:768px){.page{padding-bottom:20px}}
+
+/* ── Hero ────────────────────────────────────────────────────── */
+#hero{padding:40px 16px 32px;text-align:center;background:radial-gradient(ellipse at 50% 0%, rgba(34,197,94,.08) 0%, transparent 70%)}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:99px;margin-bottom:16px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.3)}}
+.hero-search{position:relative;max-width:560px;margin:24px auto 0}
+.hero-search input{width:100%;background:var(--s1);border:1.5px solid var(--rim);border-radius:var(--r);padding:14px 16px 14px 44px;font-size:16px;color:var(--text);outline:none;transition:border-color .15s}
+.hero-search input:focus{border-color:var(--green)}
+.hero-search input::placeholder{color:var(--sub)}
+.hero-search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--sub);width:18px;height:18px}
+.hero-search button{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:var(--green);color:#000;font-weight:700;font-size:14px;padding:8px 16px;border-radius:var(--r2);transition:background .15s}
+.hero-search button:hover{background:var(--green2)}
+
+/* ── Section ──────────────────────────────────────────────────── */
+.section{padding:24px 16px}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-hdr h2{font-size:18px;font-weight:700}
+.see-all{font-size:13px;color:var(--green);font-weight:500}
+
+/* ── Category pills ──────────────────────────────────────────── */
+.cat-scroll{display:flex;gap:8px;overflow-x:auto;padding:0 16px 16px;-webkit-overflow-scrolling:touch}
+.cat-scroll::-webkit-scrollbar{display:none}
+.cat-pill{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--rim);border-radius:99px;padding:7px 14px;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer;transition:all .15s;flex-shrink:0}
+.cat-pill:hover,.cat-pill.active{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green)}
+.cat-pill span{font-size:16px}
+
+/* ── Product grid ────────────────────────────────────────────── */
+.product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 16px}
+@media(min-width:480px){.product-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:640px){.product-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:900px){.product-grid{grid-template-columns:repeat(4,1fr)}}
+
+.product-card{background:var(--s1);border:1px solid var(--rim);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color .18s}
+.product-card:hover{border-color:var(--wire)}
+.product-card:active{border-color:var(--green)}
+.pc-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--s2)}
+.pc-img-placeholder{width:100%;aspect-ratio:1;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:40px}
+.pc-body{padding:10px}
+.pc-name{font-size:13px;font-weight:500;line-height:1.35;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pc-price{font-size:14px;font-weight:700;color:var(--amber)}
+.pc-compare{font-size:11px;color:var(--sub);text-decoration:line-through;margin-left:4px}
+.pc-vendor{font-size:11px;color:var(--sub);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-add{width:100%;margin-top:8px;padding:8px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:var(--r2);color:var(--green);font-size:13px;font-weight:600;transition:all .15s}
+.pc-add:hover{background:var(--green);color:#000}
+
+/* ── Vendor cards ─────────────────────────────────────────────── */
+.vendor-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px;-webkit-overflow-scrolling:touch}
+.vendor-scroll::-webkit-scrollbar{display:none}
+.vendor-card{background:var(--s1);border:1px solid var(--rim);border-radius:var(--r);overflow:hidden;cursor:pointer;flex-shrink:0;width:180px;transition:border-color .18s}
+.vendor-card:hover{border-color:var(--wire)}
+.vc-banner{height:72px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:28px;position:relative}
+.vc-live{position:absolute;top:6px;right:6px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green);font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;display:flex;align-items:center;gap:3px}
+.vc-body{padding:10px}
+.vc-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vc-cat{font-size:11px;color:var(--sub);margin-top:2px}
+.vc-rating{font-size:11px;color:var(--amber);margin-top:4px}
+
+/* ── Store page ──────────────────────────────────────────────── */
+#store-page .store-banner{width:100%;height:160px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:56px;border-bottom:1px solid var(--rim)}
+#store-page .store-info{padding:16px;border-bottom:1px solid var(--rim)}
+#store-page .store-meta{display:flex;gap:12px;margin-top:8px;font-size:13px;color:var(--sub);flex-wrap:wrap}
+@media(min-width:768px){#store-page .store-banner{height:220px}}
+
+/* ── Product detail ──────────────────────────────────────────── */
+#product-page .pd-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--s2)}
+#product-page .pd-body{padding:16px}
+#product-page .pd-name{font-size:20px;font-weight:700;margin-bottom:8px}
+#product-page .pd-price{font-size:24px;font-weight:700;color:var(--amber)}
+#product-page .pd-desc{font-size:14px;color:var(--sub);line-height:1.7;margin:12px 0}
+#product-page .pd-stock{font-size:13px;margin-bottom:16px}
+#product-page .qty-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+#product-page .qty-btn{width:36px;height:36px;border-radius:var(--r2);background:var(--s2);border:1px solid var(--rim);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+#product-page .qty-btn:hover{border-color:var(--green);color:var(--green)}
+#product-page .qty-val{font-size:16px;font-weight:700;min-width:32px;text-align:center}
+
+/* ── Cart ────────────────────────────────────────────────────── */
+#cart-page .cart-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--rim)}
+#cart-page .ci-img{width:72px;height:72px;border-radius:var(--r2);object-fit:cover;background:var(--s2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:28px}
+#cart-page .ci-body{flex:1;min-width:0}
+#cart-page .ci-name{font-size:14px;font-weight:500}
+#cart-page .ci-price{font-size:14px;color:var(--amber);font-weight:600;margin-top:4px}
+#cart-page .ci-remove{color:var(--red);font-size:12px;cursor:pointer;margin-top:6px}
+#cart-page .cart-total-row{padding:16px;display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:700;border-top:1px solid var(--rim)}
+
+/* ── Checkout ────────────────────────────────────────────────── */
+#checkout-page .checkout-form{padding:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--sub);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.field input,.field select,.field textarea{width:100%;background:var(--s2);border:1.5px solid var(--rim);border-radius:var(--r2);padding:11px 12px;color:var(--text);font-size:15px;font-family:var(--font);outline:none;transition:border-color .15s;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--green)}
+.field input::placeholder,.field textarea::placeholder{color:var(--dim)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── Order status ────────────────────────────────────────────── */
+.status-steps{display:flex;gap:0;margin:16px 0}
+.step-dot{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--sub);position:relative}
+.step-dot::before{content:"";position:absolute;top:10px;left:50%;right:-50%;height:2px;background:var(--rim);z-index:0}
+.step-dot:last-child::before{display:none}
+.step-circle{width:20px;height:20px;border-radius:50%;background:var(--s2);border:2px solid var(--rim);z-index:1;font-size:9px;display:flex;align-items:center;justify-content:center}
+.step-dot.done .step-circle{background:var(--green);border-color:var(--green);color:#000}
+.step-dot.done::before{background:var(--green)}
+.step-dot.active .step-circle{border-color:var(--amber);color:var(--amber)}
+
+/* ── Auth modal ──────────────────────────────────────────────── */
+#auth-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+#auth-modal.open{display:flex}
+.modal-box{background:var(--s1);border:1px solid var(--rim);border-radius:16px;width:100%;max-width:380px;padding:28px}
+.modal-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--sub);margin-bottom:20px}
+.modal-tabs{display:flex;background:var(--s2);border-radius:var(--r2);padding:3px;margin-bottom:20px;gap:2px}
+.modal-tab{flex:1;padding:8px;border-radius:var(--r3);font-size:14px;font-weight:500;color:var(--sub);text-align:center;cursor:pointer;transition:all .15s}
+.modal-tab.active{background:var(--s1);color:var(--text)}
+.modal-close{position:absolute;top:12px;right:12px;font-size:20px;color:var(--sub);cursor:pointer;line-height:1}
+
+/* ── Buttons ──────────────────────────────────────────────────── */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;border-radius:var(--r2);font-size:15px;font-weight:600;cursor:pointer;transition:all .15s;border:none;width:100%}
+.btn-primary{background:var(--green);color:#000}
+.btn-primary:hover{background:var(--green2)}
+.btn-outline{background:transparent;border:1.5px solid var(--rim);color:var(--text)}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-amber{background:var(--amber);color:#000}
+.btn-amber:hover{background:var(--amber2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:var(--r3);width:auto}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:var(--s1);border:1px solid var(--rim);color:var(--text);padding:11px 20px;border-radius:99px;font-size:14px;font-weight:500;z-index:500;opacity:0;pointer-events:none;transition:all .25s;white-space:nowrap}
+#toast.show{opacity:1;bottom:80px}
+#toast.ok{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.12);color:var(--green)}
+#toast.err{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.12);color:var(--red)}
+@media(min-width:768px){#toast{bottom:24px}#toast.show{bottom:32px}}
+
+/* ── State views ─────────────────────────────────────────────── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 24px;text-align:center}
+.empty-ico{font-size:48px;line-height:1}
+.empty-title{font-size:18px;font-weight:600}
+.empty-desc{font-size:14px;color:var(--sub);max-width:260px;line-height:1.6}
+.loading{display:flex;justify-content:center;align-items:center;padding:48px;gap:8px;color:var(--sub)}
+.spinner{width:24px;height:24px;border:2px solid var(--rim);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Account page ─────────────────────────────────────────────── */
+#account-page .acct-section{padding:16px;border-bottom:1px solid var(--rim)}
+#account-page .order-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--rim);cursor:pointer}
+#account-page .order-row:last-child{border:none}
+.status-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px}
+.s-pending  {background:rgba(245,158,11,.15);color:var(--amber)}
+.s-confirmed{background:rgba(34,197,94,.15);color:var(--green)}
+.s-delivered{background:rgba(59,130,246,.15);color:var(--blue)}
+.s-rejected {background:rgba(239,68,68,.15);color:var(--red)}
+
+/* ── Responsive layout ────────────────────────────────────────── */
+.container{max-width:1200px;margin:0 auto}
+@media(min-width:768px){.product-grid{padding:0 24px}.section{padding:28px 24px}.cat-scroll{padding:0 24px 16px}}
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────────────── -->
+<nav id="nav">
+  <div class="nav-logo" onclick="showPage('home')">🛍️ <span>ShopBot</span></div>
+  <div class="nav-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="nav-search-inp" placeholder="Search products, stores…" onkeydown="if(event.key==='Enter')doSearch(this.value)"/>
+  </div>
+  <nav class="nav-links">
+    <a onclick="showPage('home')">Marketplace</a>
+    <a onclick="showPage('vendors')">Stores</a>
+    <a onclick="showPage('services')">Services</a>
+    <a id="nav-account-link" onclick="showPage('account')">Account</a>
+  </nav>
+  <button class="nav-cart" onclick="showPage('cart')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    <span class="cart-badge" id="cart-badge">0</span>
+  </button>
+</nav>
+
+<!-- ── Pages ────────────────────────────────────────────────── -->
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div id="hero">
+    <div class="hero-eyebrow"><span class="live-dot"></span> Live marketplace</div>
+    <h1 class="h1">Find products & services<br>from Nigerian businesses</h1>
+    <div class="hero-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="hero-search-inp" placeholder="What are you looking for?"/>
+      <button onclick="doSearch(document.getElementById('hero-search-inp').value)">Search</button>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="cat-scroll" id="cat-pills"></div>
+
+  <!-- Featured products -->
+  <div class="section">
+    <div class="section-hdr"><h2>Featured Products</h2><span class="see-all" onclick="showPage('search')">See all</span></div>
+    <div class="product-grid" id="featured-grid"></div>
+  </div>
+
+  <!-- Active vendors -->
+  <div class="section">
+    <div class="section-hdr"><h2>Active Stores</h2><span class="see-all" onclick="showPage('vendors')">See all</span></div>
+    <div class="vendor-scroll" id="vendor-scroll"></div>
+  </div>
+
+  <!-- Services -->
+  <div class="section" id="services-section">
+    <div class="section-hdr"><h2>Services</h2><span class="see-all" onclick="showPage('services')">Browse all</span></div>
+    <div class="product-grid" id="services-grid"></div>
+  </div>
+
+  <div style="padding:24px 16px;text-align:center">
+    <p style="font-size:13px;color:var(--sub)">Are you a business owner?</p>
+    <a href="https://t.me/ShopBotNG" target="_blank" style="display:inline-flex;align-items:center;gap:6px;color:var(--green);font-size:14px;font-weight:600;margin-top:6px">
+      💬 Create your store on Telegram →
+    </a>
+  </div>
+</div>
+
+<!-- SEARCH RESULTS -->
+<div class="page" id="page-search">
+  <div style="padding:14px 16px;border-bottom:1px solid var(--rim);display:flex;align-items:center;gap:10px">
+    <button onclick="showPage('home')" style="color:var(--sub)">← Back</button>
+    <input type="text" id="search-inp" placeholder="Search…" style="flex:1;background:var(--s2);border:1px solid var(--rim);border-radius:var(--r2);padding:8px 12px;color:var(--text);font-size:15px;outline:none" onkeydown="if(event.key==='Enter')doSearch(this.value)"/>
+  </div>
+  <div class="section">
+    <div class="product-grid" id="search-grid"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- VENDORS LIST -->
+<div class="page" id="page-vendors">
+  <div style="padding:16px"><h2 class="h2">All Stores</h2></div>
+  <div class="cat-scroll" id="vendor-cat-pills"></div>
+  <div class="product-grid" id="vendors-grid" style="padding:0 16px 16px"></div>
+</div>
+
+<!-- SERVICES -->
+<div class="page" id="page-services">
+  <div style="padding:16px"><h2 class="h2">Services</h2></div>
+  <div class="product-grid" id="full-services-grid"></div>
+</div>
+
+<!-- STORE PAGE -->
+<div class="page" id="page-store">
+  <button onclick="historyBack()" style="position:absolute;top:calc(var(--nav-h)+8px);left:12px;z-index:10;background:rgba(0,0,0,.5);color:#fff;padding:6px 10px;border-radius:var(--r2);font-size:13px">← Back</button>
+  <div class="store-banner" id="store-banner"></div>
+  <div class="store-info" id="store-info"></div>
+  <div id="store-tabs" style="display:flex;gap:0;border-bottom:1px solid var(--rim);padding:0 16px">
+    <button class="store-tab active" onclick="switchStoreTab('products')" id="st-products" style="padding:12px 16px;font-size:14px;font-weight:600;border-bottom:2px solid var(--green);color:var(--green)">Products</button>
+    <button class="store-tab" onclick="switchStoreTab('services')" id="st-services" style="padding:12px 16px;font-size:14px;font-weight:600;color:var(--sub);border-bottom:2px solid transparent">Services</button>
+    <button class="store-tab" onclick="switchStoreTab('reviews')" id="st-reviews" style="padding:12px 16px;font-size:14px;font-weight:600;color:var(--sub);border-bottom:2px solid transparent">Reviews</button>
+  </div>
+  <div class="section" id="store-products-grid"></div>
+  <div class="section" id="store-services-grid" style="display:none"></div>
+  <div class="section" id="store-reviews" style="display:none"></div>
+</div>
+
+<!-- PRODUCT PAGE -->
+<div class="page" id="page-product">
+  <button onclick="historyBack()" style="position:absolute;top:calc(var(--nav-h)+8px);left:12px;z-index:10;background:rgba(0,0,0,.5);color:#fff;padding:6px 10px;border-radius:var(--r2);font-size:13px">← Back</button>
+  <div id="product-detail"></div>
+</div>
+
+<!-- CART -->
+<div class="page" id="page-cart">
+  <div style="padding:14px 16px;border-bottom:1px solid var(--rim);display:flex;align-items:center;gap:10px">
+    <button onclick="historyBack()" style="color:var(--sub)">← Back</button>
+    <h2 style="font-size:16px;font-weight:700">My Cart</h2>
+  </div>
+  <div id="cart-items" style="padding:0 16px"></div>
+  <div id="cart-footer" style="padding:16px;position:sticky;bottom:58px;background:var(--bg);border-top:1px solid var(--rim)"></div>
+</div>
+
+<!-- CHECKOUT -->
+<div class="page" id="page-checkout">
+  <div style="padding:14px 16px;border-bottom:1px solid var(--rim);display:flex;align-items:center;gap:10px">
+    <button onclick="showPage('cart')" style="color:var(--sub)">← Back</button>
+    <h2 style="font-size:16px;font-weight:700">Checkout</h2>
+  </div>
+  <div class="checkout-form">
+    <div class="field"><label>Full Name</label><input id="co-name" placeholder="Your full name"/></div>
+    <div class="f2">
+      <div class="field"><label>Phone</label><input id="co-phone" type="tel" placeholder="08012345678"/></div>
+      <div class="field"><label>Email</label><input id="co-email" type="email" placeholder="you@email.com"/></div>
+    </div>
+    <div class="field"><label>Delivery Address</label><input id="co-address" placeholder="Street address"/></div>
+    <div class="f2">
+      <div class="field"><label>City</label><input id="co-city" placeholder="City"/></div>
+      <div class="field"><label>State</label><input id="co-state" placeholder="State"/></div>
+    </div>
+    <div class="field"><label>Notes (optional)</label><input id="co-notes" placeholder="Any special instructions?"/></div>
+    <div id="co-summary" style="background:var(--s2);border-radius:var(--r);padding:14px;margin:16px 0;font-size:14px"></div>
+    <button class="btn btn-primary" id="co-btn" onclick="placeOrder()">Place Order</button>
+    <p style="font-size:12px;color:var(--sub);text-align:center;margin-top:12px">Payment details will be provided after order confirmation.</p>
+  </div>
+</div>
+
+<!-- ORDER SUCCESS -->
+<div class="page" id="page-order-success">
+  <div class="empty" style="padding-top:80px">
+    <div class="empty-ico">🎉</div>
+    <div class="empty-title">Order Placed!</div>
+    <div class="empty-desc" id="success-msg"></div>
+    <button class="btn btn-primary" style="max-width:280px;margin-top:8px" onclick="showPage('home')">Continue Shopping</button>
+    <button class="btn btn-outline" style="max-width:280px;margin-top:8px" id="track-btn">Track My Order</button>
+  </div>
+</div>
+
+<!-- ACCOUNT -->
+<div class="page" id="page-account">
+  <div id="account-content"></div>
+</div>
+
+<!-- ORDER TRACKING -->
+<div class="page" id="page-track">
+  <div style="padding:14px 16px;border-bottom:1px solid var(--rim)">
+    <button onclick="historyBack()" style="color:var(--sub)">← Back</button>
+  </div>
+  <div id="track-content" style="padding:16px"></div>
+</div>
+
+<!-- ── Auth Modal ──────────────────────────────────────────── -->
+<div id="auth-modal">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+      <div class="modal-title">Welcome to ShopBot</div>
+      <button onclick="closeAuth()" style="color:var(--sub);font-size:22px;line-height:1">×</button>
+    </div>
+    <div class="modal-sub">Sign in or create your account</div>
+    <div class="modal-tabs">
+      <div class="modal-tab active" onclick="switchAuthTab('login')" id="tab-login">Sign In</div>
+      <div class="modal-tab" onclick="switchAuthTab('register')" id="tab-register">Create Account</div>
+    </div>
+    <div id="auth-login-form">
+      <div class="field"><label>Email</label><input type="email" id="l-email" placeholder="your@email.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="l-pass" placeholder="Password"/></div>
+      <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+    </div>
+    <div id="auth-register-form" style="display:none">
+      <div class="f2">
+        <div class="field"><label>First Name</label><input type="text" id="r-first" placeholder="First"/></div>
+        <div class="field"><label>Last Name</label><input type="text" id="r-last" placeholder="Last"/></div>
+      </div>
+      <div class="field"><label>Email</label><input type="email" id="r-email" placeholder="your@email.com"/></div>
+      <div class="field"><label>Phone</label><input type="tel" id="r-phone" placeholder="08012345678"/></div>
+      <div class="field"><label>Password</label><input type="password" id="r-pass" placeholder="Min 6 characters"/></div>
+      <button class="btn btn-primary" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ── Bottom Nav ────────────────────────────────────────────── -->
+<div id="bottom-nav">
+  <div class="bn-item active" id="bn-home" onclick="showPage('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+  </div>
+  <div class="bn-item" id="bn-search" onclick="showPage('search')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Search
+  </div>
+  <div class="bn-item" id="bn-vendors" onclick="showPage('vendors')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Stores
+  </div>
+  <div class="bn-item" id="bn-cart" onclick="showPage('cart')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>Cart
+  </div>
+  <div class="bn-item" id="bn-account" onclick="showPage('account')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account
+  </div>
+</div>
+
+<script>
+"use strict";
+// ── State ────────────────────────────────────────────────────
+const state = {
+  cart: JSON.parse(localStorage.getItem("sb_cart")||"[]"),
+  customer: JSON.parse(localStorage.getItem("sb_customer")||"null"),
+  token: localStorage.getItem("sb_token")||null,
+  currentStore: null,
+  currentProduct: null,
+  pageHistory: [],
+  lastOrder: null,
+};
+const API = "";  // same origin
+
+// ── Helpers ──────────────────────────────────────────────────
+const fmt = n => "₦" + Number(n||0).toLocaleString("en-NG");
+const el  = id => document.getElementById(id);
+const q   = sel => document.querySelector(sel);
+
+let toastT;
+function toast(msg, type="ok") {
+  const t = el("toast");
+  t.textContent = msg; t.className = `show ${type}`;
+  clearTimeout(toastT); toastT = setTimeout(() => t.className="", 2800);
+}
+
+async function api(path, opts={}) {
+  const headers = { "Content-Type":"application/json", ...(state.token ? { Authorization:`Bearer ${state.token}` } : {}) };
+  const r = await fetch(API+path, { ...opts, headers: { ...headers, ...opts.headers } });
+  const d = await r.json().catch(()=>({}));
+  if (!r.ok) throw new Error(d.error || `Error ${r.status}`);
+  return d;
+}
+
+function saveCart()    { localStorage.setItem("sb_cart", JSON.stringify(state.cart)); updateCartBadge(); }
+function saveAuth()    { localStorage.setItem("sb_customer", JSON.stringify(state.customer)); localStorage.setItem("sb_token", state.token||""); }
+function updateCartBadge() {
+  const n = state.cart.reduce((s,i)=>s+i.qty,0);
+  el("cart-badge").textContent = n;
+  el("cart-badge").style.display = n > 0 ? "flex" : "none";
+}
+
+// ── Page router ───────────────────────────────────────────────
+function showPage(name, data=null, push=true) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  const pg = el(`page-${name}`);
+  if (!pg) return;
+  if (push && state.pageHistory[state.pageHistory.length-1] !== name)
+    state.pageHistory.push(name);
+  pg.classList.add("active");
+  // Update bottom nav
+  document.querySelectorAll(".bn-item").forEach(b => b.classList.remove("active"));
+  const bnMap = { home:"bn-home",search:"bn-search",vendors:"bn-vendors",cart:"bn-cart",account:"bn-account" };
+  if (bnMap[name]) el(bnMap[name])?.classList.add("active");
+  // Page-specific loaders
+  if (name==="home")    loadHome();
+  if (name==="vendors") loadVendors();
+  if (name==="services") loadServices();
+  if (name==="cart")    renderCart();
+  if (name==="account") renderAccount();
+  if (name==="search")  { el("search-inp").focus(); }
+  if (name==="store" && data)   loadStore(data);
+  if (name==="product" && data) loadProduct(data);
+  if (name==="track" && data)   loadTrack(data);
+  window.scrollTo(0,0);
+}
+
+function historyBack() {
+  state.pageHistory.pop();
+  const prev = state.pageHistory[state.pageHistory.length-1] || "home";
+  showPage(prev, null, false);
+}
+
+// ── Home ─────────────────────────────────────────────────────
+async function loadHome() {
+  loadCategories();
+  loadFeatured();
+  loadVendorScroll();
+  loadServicesPreview();
+}
+
+async function loadCategories() {
+  try {
+    const { categories } = await api("/api/categories");
+    el("cat-pills").innerHTML = categories.map(c =>
+      `<div class="cat-pill" onclick="filterByCategory('${c.slug}')"><span>${c.icon}</span>${c.name}</div>`
+    ).join("");
+    el("vendor-cat-pills").innerHTML = '<div class="cat-pill active" onclick="loadVendors()"><span>🏪</span>All Stores</div>' +
+      categories.map(c => `<div class="cat-pill" onclick="loadVendors('${c.slug}')"><span>${c.icon}</span>${c.name}</div>`).join("");
+  } catch(e) {}
+}
+
+async function loadFeatured() {
+  const grid = el("featured-grid");
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    const { products } = await api("/api/products/featured");
+    if (!products.length) { grid.innerHTML = '<div class="loading" style="color:var(--sub)">No products yet</div>'; return; }
+    grid.innerHTML = products.map(productCard).join("");
+  } catch(e) { grid.innerHTML = ""; }
+}
+
+async function loadVendorScroll() {
+  try {
+    const { vendors } = await api("/api/vendors?limit=10");
+    el("vendor-scroll").innerHTML = vendors.map(vendorCard).join("") ||
+      '<div class="loading" style="color:var(--sub)">No stores yet</div>';
+  } catch(e) {}
+}
+
+async function loadServicesPreview() {
+  try {
+    const { services } = await api("/api/services?limit=4");
+    if (!services.length) { el("services-section").style.display="none"; return; }
+    el("services-grid").innerHTML = services.map(serviceCard).join("");
+  } catch(e) { el("services-section").style.display="none"; }
+}
+
+// ── Product card HTML ─────────────────────────────────────────
+function productCard(p) {
+  const img = p.image_url && !p.image_url.startsWith("tg:")
+    ? `<img class="pc-img" src="${p.image_url}" alt="${p.name}" loading="lazy"/>`
+    : `<div class="pc-img-placeholder">${p.category_name?categoryIcon(p.category_name):"📦"}</div>`;
+  return `<div class="product-card" onclick="showPage('product',${p.id})">
+    ${img}
+    <div class="pc-body">
+      <div class="pc-name">${p.name}</div>
+      <div style="display:flex;align-items:baseline;gap:4px">
+        <span class="pc-price">${fmt(p.price)}</span>
+        ${p.compare_price?`<span class="pc-compare">${fmt(p.compare_price)}</span>`:""}
+      </div>
+      <div class="pc-vendor">🏪 ${p.business_name||""}</div>
+      <button class="pc-add" onclick="event.stopPropagation();addToCart(${JSON.stringify({id:p.id,name:p.name,price:p.price,vendor:p.business_name,image:p.image_url||null}).replace(/"/g,"&quot;")})">Add to Cart</button>
+    </div>
+  </div>`;
+}
+
+function serviceCard(s) {
+  return `<div class="product-card" onclick="showPage('store','${s.store_slug||""}')">
+    <div class="pc-img-placeholder">🛎️</div>
+    <div class="pc-body">
+      <div class="pc-name">${s.name}</div>
+      <div class="pc-price">${fmt(s.price)}</div>
+      <div class="pc-vendor">🏪 ${s.business_name||""}</div>
+      ${s.duration_min ? `<div style="font-size:11px;color:var(--sub);margin-top:4px">⏱️ ${s.duration_min} min</div>` : ""}
+    </div>
+  </div>`;
+}
+
+function vendorCard(v) {
+  const ind = v.industry || "Business";
+  return `<div class="vendor-card" onclick="showPage('store','${v.store_slug}')">
+    <div class="vc-banner">${categoryIcon(ind)}
+      <div class="vc-live"><span class="live-dot" style="width:5px;height:5px"></span> LIVE</div>
+    </div>
+    <div class="vc-body">
+      <div class="vc-name">${v.business_name}</div>
+      <div class="vc-cat">${ind}</div>
+      <div class="vc-rating">⭐ ${Number(v.rating||5).toFixed(1)}</div>
+    </div>
+  </div>`;
+}
+
+function categoryIcon(name) {
+  const map = { "Food & Drinks":"🍔","Fashion & Clothing":"👗","Beauty & Personal Care":"💄","Electronics & Gadgets":"📱",
+    "Home & Living":"🏠","Grocery & Supermarket":"🛒","Health & Wellness":"💊","Professional Services":"💼",
+    "Home & Property Services":"🔧","Automotive":"🚗","Logistics & Delivery":"🚚","Travel & Hospitality":"✈️",
+    "Education & Training":"📚","Events & Entertainment":"🎉","Agriculture":"🌾","Manufacturing":"🏭",
+    "Wholesale & Distribution":"📦","Creative & Design":"🎨","Digital & Tech":"💻","Crypto & Gift Cards":"💱",
+    "Finance":"🏦","Export & Import":"🌍","Other":"🏪" };
+  for (const [k,v] of Object.entries(map)) { if (name?.includes(k.split(" ")[0])) return v; }
+  return "🏪";
+}
+
+// ── Search ───────────────────────────────────────────────────
+async function doSearch(q) {
+  if (!q?.trim()) return;
+  showPage("search");
+  el("search-inp").value = q;
+  el("nav-search-inp").value = q;
+  const grid = el("search-grid");
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    const { products } = await api(`/api/products?q=${encodeURIComponent(q)}&limit=40`);
+    if (!products.length) {
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-ico">🔍</div><div class="empty-title">No results for "${q}"</div><div class="empty-desc">Try different keywords or browse categories.</div></div>`;
+      return;
+    }
+    grid.innerHTML = products.map(productCard).join("");
+  } catch(e) { grid.innerHTML = ""; }
+}
+
+function filterByCategory(slug) {
+  showPage("search");
+  doSearchByCategory(slug);
+}
+
+async function doSearchByCategory(slug) {
+  const grid = el("search-grid");
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    const { products } = await api(`/api/products?category=${slug}&limit=40`);
+    grid.innerHTML = products.length ? products.map(productCard).join("") : '<div class="empty" style="grid-column:1/-1"><div class="empty-ico">📦</div><div class="empty-title">No products in this category yet</div></div>';
+  } catch(e) {}
+}
+
+// ── Vendors page ──────────────────────────────────────────────
+async function loadVendors(catSlug) {
+  const grid = el("vendors-grid");
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    const url = catSlug ? `/api/vendors?category=${catSlug}&limit=50` : "/api/vendors?limit=50";
+    const { vendors } = await api(url);
+    if (!vendors.length) {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-ico">🏪</div><div class="empty-title">No stores yet</div><div class="empty-desc">Vendors are joining. Check back soon!</div></div>';
+      return;
+    }
+    grid.innerHTML = vendors.map(v => `
+      <div class="product-card" onclick="showPage('store','${v.store_slug}')">
+        <div class="pc-img-placeholder">${categoryIcon(v.industry||"")}</div>
+        <div class="pc-body">
+          <div class="pc-name" style="font-weight:600">${v.business_name}</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:2px">${v.industry||""}</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:2px">📍 ${v.location||""}</div>
+          <div style="font-size:12px;color:var(--amber);margin-top:4px">⭐ ${Number(v.rating||5).toFixed(1)}</div>
+        </div>
+      </div>`).join("");
+  } catch(e) { grid.innerHTML = ""; }
+}
+
+// ── Services page ──────────────────────────────────────────────
+async function loadServices() {
+  const grid = el("full-services-grid");
+  if (!grid) return;
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    const { services } = await api("/api/services?limit=40");
+    grid.innerHTML = services.length ? services.map(serviceCard).join("") : '<div class="empty" style="grid-column:1/-1"><div class="empty-ico">🛎️</div><div class="empty-title">No services yet</div></div>';
+  } catch(e) {}
+}
+
+// ── Store page ────────────────────────────────────────────────
+let storeData = null;
+async function loadStore(slug) {
+  el("store-banner").innerHTML = '<div class="spinner"></div>';
+  el("store-info").innerHTML = "";
+  el("store-products-grid").innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    const { vendor, products, services, reviews } = await api(`/api/vendors/${slug}`);
+    storeData = { vendor, products, services, reviews };
+    el("store-banner").innerHTML = `<div style="font-size:64px">${categoryIcon(vendor.industry||"")}</div>`;
+    el("store-info").innerHTML = `
+      <h2 style="font-size:20px;font-weight:700">${vendor.business_name}</h2>
+      <div class="store-meta">
+        ${vendor.location?`<span>📍 ${vendor.location}</span>`:""}
+        ${vendor.phone?`<span>📞 ${vendor.phone}</span>`:""}
+        <span>⭐ ${Number(vendor.rating||5).toFixed(1)} (${vendor.review_count||0} reviews)</span>
+        ${vendor.industry?`<span>🏷️ ${vendor.industry}</span>`:""}
+      </div>
+      ${vendor.description?`<p style="font-size:14px;color:var(--sub);margin-top:10px;line-height:1.6">${vendor.description}</p>`:""}
+      ${vendor.delivery_info?`<p style="font-size:13px;color:var(--sub);margin-top:8px">🚚 ${vendor.delivery_info}</p>`:""}`;
+    switchStoreTab("products");
+  } catch(e) {
+    el("store-banner").innerHTML = "⚠️";
+    el("store-info").innerHTML = `<p style="padding:16px;color:var(--sub)">Store not found.</p>`;
+  }
+}
+
+function switchStoreTab(tab) {
+  ["products","services","reviews"].forEach(t => {
+    const btn = el(`st-${t}`);
+    if (btn) { btn.style.borderBottomColor = t===tab ? "var(--green)" : "transparent"; btn.style.color = t===tab ? "var(--green)" : "var(--sub)"; }
+    const div = el(`store-${t}-grid`) || el(`store-${t}`);
+    if (div) div.style.display = t===tab ? "" : "none";
+  });
+  if (!storeData) return;
+  if (tab === "products") {
+    const grid = el("store-products-grid");
+    grid.innerHTML = storeData.products.length ? `<div class="product-grid">${storeData.products.map(productCard).join("")}</div>` :
+      '<div class="empty"><div class="empty-ico">📦</div><div class="empty-title">No products yet</div></div>';
+  }
+  if (tab === "services") {
+    const grid = el("store-services-grid");
+    grid.innerHTML = storeData.services.length ? `<div class="product-grid">${storeData.services.map(serviceCard).join("")}</div>` :
+      '<div class="empty"><div class="empty-ico">🛎️</div><div class="empty-title">No services yet</div></div>';
+  }
+  if (tab === "reviews") {
+    const div = el("store-reviews");
+    div.innerHTML = storeData.reviews.length
+      ? storeData.reviews.map(r => `<div style="padding:12px 0;border-bottom:1px solid var(--rim)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:13px;font-weight:600">${r.first_name||"Customer"}</span>
+            <span style="color:var(--amber);font-size:12px">⭐ ${r.rating}/5</span>
+          </div>
+          <p style="font-size:13px;color:var(--sub)">${r.comment||""}</p>
+        </div>`).join("")
+      : '<div class="empty"><div class="empty-ico">💬</div><div class="empty-title">No reviews yet</div></div>';
+  }
+}
+
+// ── Product detail ────────────────────────────────────────────
+let productQty = 1;
+async function loadProduct(id) {
+  productQty = 1;
+  el("product-detail").innerHTML = '<div class="loading" style="padding:60px"><div class="spinner"></div></div>';
+  try {
+    const { product, vendor } = await api(`/api/products/${id}`);
+    const img = product.image_url && !product.image_url.startsWith("tg:")
+      ? `<img class="pd-img" src="${product.image_url}" alt="${product.name}"/>`
+      : `<div class="pd-img" style="display:flex;align-items:center;justify-content:center;font-size:80px">${categoryIcon(product.category_name||"")}</div>`;
+    el("product-detail").innerHTML = `
+      ${img}
+      <div class="pd-body">
+        <div class="pd-name">${product.name}</div>
+        <div class="pd-price">${fmt(product.price)}</div>
+        ${product.description?`<p class="pd-desc">${product.description}</p>`:""}
+        <div class="pd-stock" style="color:${product.stock>5?"var(--green)":product.stock>0?"var(--amber)":"var(--red)"}">
+          ${product.stock>10?"✅ In Stock":product.stock>0?`⚠️ Only ${product.stock} left`:"❌ Out of Stock"}
+        </div>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <span class="qty-val" id="pd-qty">1</span>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+          <span style="font-size:13px;color:var(--sub)">units</span>
+        </div>
+        <button class="btn btn-amber" onclick="addToCartAndProceed(${product.id},'${product.name.replace(/'/g,"\\'")}',${product.price},'${(vendor?.business_name||"").replace(/'/g,"\\'")}',${product.stock})">
+          🛒 Add to Cart
+        </button>
+        <button class="btn btn-outline" style="margin-top:8px" onclick="showPage('store','${vendor?.store_slug}')">
+          Visit ${vendor?.business_name || "Store"}
+        </button>
+      </div>`;
+  } catch(e) {
+    el("product-detail").innerHTML = '<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-title">Product not found</div></div>';
+  }
+}
+
+function changeQty(d) {
+  productQty = Math.max(1, productQty + d);
+  el("pd-qty").textContent = productQty;
+}
+
+function addToCartAndProceed(id, name, price, vendor, stock) {
+  if (stock < 1) return toast("❌ Out of stock", "err");
+  addToCart({ id, name, price, vendor, image: null }, productQty);
+  toast("✅ Added to cart!");
+}
+
+// ── Cart ──────────────────────────────────────────────────────
+function addToCart(product, qty=1) {
+  const existing = state.cart.find(i => i.id === product.id);
+  if (existing) existing.qty += qty;
+  else state.cart.push({ ...product, qty });
+  saveCart();
+  toast("✅ Added to cart!");
+}
+
+function renderCart() {
+  const container = el("cart-items");
+  const footer    = el("cart-footer");
+  if (!state.cart.length) {
+    container.innerHTML = `<div class="empty" style="padding:60px 24px"><div class="empty-ico">🛒</div><div class="empty-title">Cart is empty</div><div class="empty-desc">Add products to get started.</div></div>`;
+    footer.innerHTML = "";
+    return;
+  }
+  const total = state.cart.reduce((s,i)=>s+i.price*i.qty,0);
+  container.innerHTML = state.cart.map((item,idx) => `
+    <div class="cart-item">
+      <div class="ci-img">${item.image && !item.image.startsWith("tg:") ? `<img src="${item.image}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r2)"/>` : "📦"}</div>
+      <div class="ci-body">
+        <div class="ci-name">${item.name}</div>
+        <div style="font-size:11px;color:var(--sub)">${item.vendor||""}</div>
+        <div class="ci-price">${fmt(item.price)} × ${item.qty} = ${fmt(item.price*item.qty)}</div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button onclick="updateCartQty(${idx},-1)" style="font-size:18px;color:var(--sub)">−</button>
+          <span style="font-size:14px;font-weight:600">${item.qty}</span>
+          <button onclick="updateCartQty(${idx},1)" style="font-size:18px;color:var(--sub)">+</button>
+          <button class="ci-remove" onclick="removeFromCart(${idx})">Remove</button>
+        </div>
+      </div>
+    </div>`).join("");
+  footer.innerHTML = `
+    <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-bottom:12px">
+      <span>Total</span><span style="color:var(--amber)">${fmt(total)}</span>
+    </div>
+    <button class="btn btn-primary" onclick="showPage('checkout')">Checkout</button>`;
+}
+
+function updateCartQty(idx, d) {
+  state.cart[idx].qty = Math.max(1, state.cart[idx].qty + d);
+  saveCart(); renderCart();
+}
+
+function removeFromCart(idx) {
+  state.cart.splice(idx, 1); saveCart(); renderCart();
+}
+
+// ── Checkout ──────────────────────────────────────────────────
+function renderCheckoutSummary() {
+  const total    = state.cart.reduce((s,i)=>s+i.price*i.qty,0);
+  el("co-summary").innerHTML = state.cart.map(i => `<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>${i.qty}× ${i.name}</span><span>${fmt(i.price*i.qty)}</span></div>`).join("") +
+    `<div style="border-top:1px solid var(--rim);margin-top:8px;padding-top:8px;font-weight:700;display:flex;justify-content:space-between"><span>Total</span><span style="color:var(--amber)">${fmt(total)}</span></div>`;
+}
+
+async function placeOrder() {
+  const name    = el("co-name").value.trim();
+  const phone   = el("co-phone").value.trim();
+  const email   = el("co-email").value.trim();
+  const address = el("co-address").value.trim();
+  const city    = el("co-city").value.trim();
+  const state_  = el("co-state").value.trim();
+  if (!name || !address) return toast("Name and delivery address are required", "err");
+  if (!state.cart.length) return toast("Cart is empty", "err");
+  const btn = el("co-btn");
+  btn.disabled = true; btn.textContent = "Placing order…";
+  try {
+    const items = state.cart.map(i => ({ product_id: i.id, quantity: i.qty }));
+    const result = await api("/api/orders", { method:"POST", body: JSON.stringify({
+      items, customer_name: name, customer_email: email, customer_phone: phone,
+      delivery_address: address, city, state: state_, customer_id: state.customer?.id || null,
+    })});
+    state.lastOrder = result;
+    state.cart = []; saveCart();
+    el("success-msg").textContent = `Order ${result.order_ref} placed! Total: ${fmt(result.total)}. The vendor will confirm your order and contact you with payment details.`;
+    el("track-btn").onclick = () => showPage("track", result.order_ref);
+    showPage("order-success");
+  } catch(e) {
+    toast(e.message, "err");
+  }
+  btn.disabled = false; btn.textContent = "Place Order";
+}
+
+// ── Order tracking ─────────────────────────────────────────────
+async function loadTrack(ref) {
+  el("track-content").innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    const { order, items } = await api(`/api/orders/${ref}`);
+    const statusOrder = ["pending","confirmed","processing","shipped","out_for_delivery","delivered"];
+    const statusIdx   = statusOrder.indexOf(order.status);
+    const statusLabels= ["Placed","Confirmed","Processing","Shipped","On the way","Delivered"];
+    el("track-content").innerHTML = `
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:16px">Order ${order.order_ref}</h2>
+      <div class="status-steps">
+        ${statusLabels.map((l,i) => `<div class="step-dot ${i<=statusIdx?"done":""} ${i===statusIdx?"active":""}">
+          <div class="step-circle">${i<=statusIdx?"✓":""}</div>
+          <div>${l}</div>
+        </div>`).join("")}
+      </div>
+      <div style="background:var(--s2);border-radius:var(--r);padding:14px;margin-top:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Order Items</div>
+        ${items.map(i=>`<div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0">${i.quantity}× ${i.item_name}<span>${fmt(i.total_price)}</span></div>`).join("")}
+        <div style="border-top:1px solid var(--rim);margin-top:8px;padding-top:8px;font-weight:700;display:flex;justify-content:space-between">Total<span style="color:var(--amber)">${fmt(order.total)}</span></div>
+      </div>
+      <div style="margin-top:14px;font-size:13px;color:var(--sub)">📍 ${order.delivery_address}${order.city?", "+order.city:""}</div>
+      <div style="margin-top:4px;font-size:13px;color:var(--sub)">💳 Payment: ${order.payment_status}</div>`;
+  } catch(e) {
+    el("track-content").innerHTML = `<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-title">Order not found</div></div>`;
+  }
+}
+
+// ── Account ───────────────────────────────────────────────────
+function renderAccount() {
+  if (!state.customer) {
+    el("account-content").innerHTML = `
+      <div class="empty" style="padding:60px 24px">
+        <div class="empty-ico">👤</div>
+        <div class="empty-title">Sign in to your account</div>
+        <div class="empty-desc">Track orders, save addresses, and shop faster.</div>
+        <button class="btn btn-primary" style="max-width:240px;margin-top:16px" onclick="openAuth()">Sign In / Register</button>
+      </div>`;
+    return;
+  }
+  el("account-content").innerHTML = `
+    <div class="acct-section" style="display:flex;align-items:center;gap:12px">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:22px">👤</div>
+      <div>
+        <div style="font-weight:600">${state.customer.first_name||""} ${state.customer.last_name||""}</div>
+        <div style="font-size:13px;color:var(--sub)">${state.customer.email}</div>
+      </div>
+    </div>
+    <div class="acct-section">
+      <div style="font-size:14px;font-weight:600;margin-bottom:12px">Recent Orders</div>
+      <div id="acct-orders"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+    <div class="acct-section">
+      <button class="btn btn-outline" onclick="doLogout()">Sign Out</button>
+    </div>`;
+  loadAccountOrders();
+}
+
+async function loadAccountOrders() {
+  try {
+    const { orders } = await api("/api/customers/orders");
+    const div = el("acct-orders");
+    if (!orders?.length) { div.innerHTML = '<div style="font-size:13px;color:var(--sub)">No orders yet.</div>'; return; }
+    div.innerHTML = orders.map(o => `
+      <div class="order-row" onclick="showPage('track','${o.order_ref}')">
+        <div>
+          <div style="font-size:14px;font-weight:500">${o.order_ref}</div>
+          <div style="font-size:12px;color:var(--sub)">${new Date(o.created_at).toLocaleDateString("en-NG")} · ${o.items?.length||0} item(s)</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:14px;font-weight:700;color:var(--amber)">${fmt(o.total)}</div>
+          <span class="status-badge s-${o.status}">${o.status}</span>
+        </div>
+      </div>`).join("");
+  } catch(e) { el("acct-orders")?.innerHTML = '<div style="font-size:13px;color:var(--sub)">Could not load orders.</div>'; }
+}
+
+// ── Auth ──────────────────────────────────────────────────────
+function openAuth() { el("auth-modal").classList.add("open"); }
+function closeAuth() { el("auth-modal").classList.remove("open"); }
+function switchAuthTab(tab) {
+  el("tab-login").classList.toggle("active", tab==="login");
+  el("tab-register").classList.toggle("active", tab==="register");
+  el("auth-login-form").style.display  = tab==="login" ? "" : "none";
+  el("auth-register-form").style.display = tab==="register" ? "" : "none";
+}
+
+async function doLogin() {
+  const email = el("l-email").value.trim();
+  const pass  = el("l-pass").value;
+  if (!email || !pass) return toast("Email and password required", "err");
+  try {
+    const { token, customer } = await api("/api/customers/login", { method:"POST", body: JSON.stringify({ email, password: pass }) });
+    state.token = token; state.customer = customer; saveAuth(); closeAuth();
+    toast("✅ Welcome back, " + (customer.first_name||""));
+    renderAccount();
+  } catch(e) { toast(e.message, "err"); }
+}
+
+async function doRegister() {
+  const first = el("r-first").value.trim();
+  const last  = el("r-last").value.trim();
+  const email = el("r-email").value.trim();
+  const phone = el("r-phone").value.trim();
+  const pass  = el("r-pass").value;
+  if (!email || !pass) return toast("Email and password required", "err");
+  if (pass.length < 6) return toast("Password must be at least 6 characters", "err");
+  try {
+    const { token, customer } = await api("/api/customers/register", { method:"POST", body: JSON.stringify({ email, password: pass, first_name: first, last_name: last, phone }) });
+    state.token = token; state.customer = customer; saveAuth(); closeAuth();
+    toast("✅ Account created! Welcome, " + (customer.first_name||""));
+    renderAccount();
+  } catch(e) { toast(e.message, "err"); }
+}
+
+function doLogout() {
+  state.token = null; state.customer = null; saveAuth();
+  toast("Signed out");
+  renderAccount();
+}
+
+// ── Boot ──────────────────────────────────────────────────────
+updateCartBadge();
+showPage("home", null, false);
+// Pre-fill checkout if logged in
+document.getElementById("page-checkout").addEventListener("focus", () => {
+  if (state.customer) {
+    el("co-name").value = `${state.customer.first_name||""} ${state.customer.last_name||""}`.trim();
+    el("co-phone").value = state.customer.phone||"";
+    el("co-email").value = state.customer.email||"";
+  }
+  renderCheckoutSummary();
+}, true);
+</script>
+</body>
+</html>
